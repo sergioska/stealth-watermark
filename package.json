@@ -1,9 +1,11 @@
 {
-  "name": "blind-watermark",
+  "name": "stealth-watermark",
   "version": "1.0.0",
   "description": "TypeScript library for invisible watermarks using DWT",
   "author": "Sergio Sicari",
   "main": "dist/index.js",
+  "license": "MIT",
+  "keywords": ["watermark","blind-watermark","steganography","image"],
   "scripts": {
     "build": "tsc",
     "test": "jest",

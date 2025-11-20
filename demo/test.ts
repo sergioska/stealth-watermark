@@ -8,12 +8,24 @@ import { WatermarkOptions } from "../src/types";
     process.exit(1);
   });
 
-  console.log("Inizio test");
-  const inputPath = "demo/input.jpeg";
+  // === Nuovo: lettura percorso da CLI ===
+  const cliArg = process.argv[2];
+
+  if (cliArg === "--help" || cliArg === "-h") {
+    console.log("Uso: node test.js <percorso-immagine>");
+    console.log("Esempio: node test.js ./demo/input2.jpeg");
+    process.exit(0);
+  }
+
+  const inputPath = cliArg || "demo/input.jpeg";
+  console.log("Input path:", inputPath);
+
   if (!fs.existsSync(inputPath)) {
     console.error(`File non trovato: ${inputPath}`);
     process.exit(1);
   }
+
+  console.log("Inizio test");
 
   const original = fs.readFileSync(inputPath);
   console.log("original", original);
@@ -29,10 +41,11 @@ import { WatermarkOptions } from "../src/types";
     console.log("addWatermark done");
     console.timeEnd("addWatermark");
 
-    fs.writeFileSync("demo/watermarked.jpeg", image);
-    console.log("Watermark aggiunto -> watermarked.png");
+    const outputWatermarked = "demo/watermarked.jpeg";
+    fs.writeFileSync(outputWatermarked, image);
+    console.log("Watermark aggiunto ->", outputWatermarked);
 
-    const savedImage = fs.readFileSync("demo/watermarked.jpeg");
+    const savedImage = fs.readFileSync(outputWatermarked);
 
     console.time("extractWatermark");
     const extracted = await extractWatermark(savedImage, opts);
