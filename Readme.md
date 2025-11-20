@@ -1,4 +1,4 @@
-# Blind Watermark 🔐
+# Stealth Watermark 🔐
 
 [![npm version](https://badge.fury.io/js/dwt-watermark.svg)](https://badge.fury.io/js/dwt-watermark)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
@@ -20,15 +20,15 @@ A robust library for digital image watermarking using **Discrete Wavelet Transfo
 ## 🚀 Installation
 
 ```bash
-npm install blind-watermark
+npm install stealth-watermark
 ```
 
 ```bash
-yarn add blind-watermark
+yarn add stealth-watermark
 ```
 
 ```bash
-pnpm add blind-watermark
+pnpm add stealth-watermark
 ```
 
 ## 📖 Quick Start
@@ -208,8 +208,8 @@ npm run test:coverage
 
 ```bash
 # Clone repository
-git clone https://github.com/sergioska/blind-watermark.git
-cd blind-watermark
+git clone https://github.com/sergioska/stealth-watermark.git
+cd stealth-watermark
 
 # Install dependencies
 npm install

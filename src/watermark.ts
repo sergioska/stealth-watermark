@@ -25,7 +25,7 @@ function encodePngFromBitmap(img: any): Buffer {
 }
 
 function encodeJpegFromBitmap(img: any, quality = 90): Buffer {
-  const { width, height, data } = img.bitmap; // RGBA
+  const { width, height, data } = img.bitmap;
   return jpeg.encode({ data: Buffer.from(data), width, height }, quality).data;
 }
 
@@ -82,7 +82,7 @@ export async function addWatermark(
   const channel = options.channel ?? 0;
   const q = options.q ?? 12;
   const seed = options.seed ?? 1234;
-  const reps = (options as any).reps ?? 3; // redundancy (3 recommended)
+  const reps = (options as any).reps ?? 3;
 
   const img = await readImageCompat(imageBuffer);
   const { width, height } = ensureEvenDimensions(img);
@@ -143,7 +143,8 @@ export async function addWatermark(
     }
   }
 
-  const output = (options as any).output ?? "png";      // "png" | "jpeg"
+  // "png" | "jpeg"
+  const output = (options as any).output ?? "png";      
   const jpegQuality = (options as any).jpegQuality ?? 95;
 
   const buffer: Buffer =
@@ -176,7 +177,7 @@ export async function extractWatermark(
     mat.push(row);
   }
 
-  // DWT → HL
+  // DWT -> HL
   const [, HL] = haarDWT(mat);
   const h = HL.length, w = HL[0]!.length;
   const capacity = h * w;
@@ -211,7 +212,7 @@ export async function extractWatermark(
     payloadRepBits.push(qimDecode(c, q));
   }
 
-  // 3) Majority on all (header+data) → clean bits
+  // 3) Majority on all (header+data) -> clean bits
   const payloadBits = decodeRepeatedBits(payloadRepBits, reps);
 
   // 4) Take exactly the data bits (after 32 header bits)
