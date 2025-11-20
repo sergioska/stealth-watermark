@@ -40,7 +40,15 @@ export function bitsToU32(bits: number[], start = 0): number {
     throw new Error(`bitsToU32: servono 32 bit da start=${start}, disponibili=${bits.length - start}`);
   }
   let n = 0;
-  for (let i = 0; i < 32; i++) n = (n << 1) | (bits[start + i] & 1);
+  //for (let i = 0; i < 32; i++) n = (n << 1) | (bits[start + i] & 1);
+  for (let i = 0; i < 32; i++) {
+    const bit = bits[start + i];
+    if (bit === undefined) break;
+    const shifted = n << 1;
+    const masked  = bit & 1;
+    n = shifted | masked;
+  }
+  
   return n >>> 0;
 }
 

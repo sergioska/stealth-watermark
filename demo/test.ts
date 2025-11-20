@@ -1,6 +1,7 @@
 import * as fs from "fs";
 import { addWatermark, extractWatermark } from "../src/watermark";
-import { WatermarkOptions } from "../src/types";
+//import { addWatermark as addWatermarkDwtDct, extractWatermark as extractWatermarkDwtDct } from "../src/watermark-dwt-dct";
+import { WatermarkOptions, WatermarkResult } from "../src/types";
 
 (async () => {
   process.on("unhandledRejection", (e) => {
@@ -9,37 +10,48 @@ import { WatermarkOptions } from "../src/types";
   });
 
   console.log("Inizio test");
-  const inputPath = "demo/input.jpeg";
-  if (!fs.existsSync(inputPath)) {
-    console.error(`File non trovato: ${inputPath}`);
-    process.exit(1);
-  }
 
-  const original = fs.readFileSync(inputPath);
-  console.log("original", original);
+  const images = [
+    "demo/swr3-original.jpeg",
+  ]
 
-  const wmText = "il mio watermark invisibile";
-  const opts: WatermarkOptions = { q: 22, channel: 1, seed: 1234, reps: 5 };
-  console.log("opts", opts);
+  for (const inputPath of images) {
 
-  try {
-    console.time("addWatermark");
-    console.log("addWatermark");
-    const { image } = await addWatermark(original, wmText, opts);
-    console.log("addWatermark done");
-    console.timeEnd("addWatermark");
+    //const inputPath = "demo/orange.jpeg";
+    if (!fs.existsSync(inputPath)) {
+      console.error(`File non trovato: ${inputPath}`);
+      process.exit(1);
+    }
 
-    fs.writeFileSync("demo/watermarked.jpeg", image);
-    console.log("Watermark aggiunto -> watermarked.png");
+    const original = fs.readFileSync(inputPath);
+    //console.log("original", original);
 
-    const savedImage = fs.readFileSync("demo/watermarked.jpeg");
+    const wmText = "il mio watermark invisibile";
+    const opts: WatermarkOptions = { q: 26, channel: 2, seed: 1234, reps: 256, bands: "HL" } 
+    //console.log("opts", opts);
 
-    console.time("extractWatermark");
-    const extracted = await extractWatermark(savedImage, opts);
-    console.timeEnd("extractWatermark");
+    try {
+      //console.time("addWatermark");
+      //console.log("addWatermark");
+      const { image } = await addWatermark(original, wmText, opts as WatermarkOptions) as unknown as WatermarkResult;
+      //console.log("addWatermark done");
+      //console.timeEnd("addWatermark");
 
-    console.log("Watermark estratto:", JSON.stringify(extracted));
-  } catch (err) {
-    console.error("Errore nel test:", err);
+      fs.writeFileSync("demo/watermarked.jpeg", image);
+      //console.log("Watermark aggiunto -> watermarked.png");
+
+      const savedImage = fs.readFileSync("demo/watermarked.jpeg");
+
+      //console.time("extractWatermark");
+      const extracted = await extractWatermark(savedImage, opts);
+      //console.timeEnd("extractWatermark");
+
+      const check = extracted === "il mio watermark invisibile";
+
+      const emojy = check ? "✅" : "❌";
+      console.log(`${inputPath} -> ${JSON.stringify(extracted)} ${emojy}`);
+    } catch (err) {
+      console.error("Errore nel test:", err);
+    }
   }
 })();

@@ -31,7 +31,7 @@ function encodeJpegFromBitmap(img: any, quality = 90): Buffer {
 
 function qimEncode(c: number, q: number, bit: 0 | 1): number {
   const base = Math.floor(c / q) * q;
-  return bit === 1 ? base + 0.75 * q : base + 0.25 * q;
+  return bit === 1 ? base + 0.98 * q : base + 0.25 * q;
 }
 function qimDecode(c: number, q: number): 0 | 1 {
   const r = posMod(c, q);
@@ -45,6 +45,7 @@ function repeatBits(bits: number[], reps: number): number[] {
   return out;
 }
 function decodeRepeatedBits(bits: number[], reps: number): number[] {
+  console.log("decodeRepeatedBits: bits.length", bits.length, "reps", reps);
   if (reps <= 1) return bits.slice();
   const out: number[] = [];
   for (let i = 0; i < bits.length; i += reps) {
@@ -83,6 +84,7 @@ export async function addWatermark(
   const q = options.q ?? 12;
   const seed = options.seed ?? 1234;
   const reps = (options as any).reps ?? 3; // redundancy (3 recommended)
+  const bands = (options as any).bands ?? "HL"; // "HL" | "HL+LH"
 
   const img = await readImageCompat(imageBuffer);
   const { width, height } = ensureEvenDimensions(img);
@@ -103,14 +105,18 @@ export async function addWatermark(
 
   // Build payload: [header(32 bit = len bytes)] + [data]
   const wmBytes = stringToBytes(watermarkText);
+  console.log("wmBytes", wmBytes);
   const wmBits = toBits(wmBytes);
+  console.log("wmBits", wmBits);
   const header = u32ToBits(wmBytes.length >>> 0);
 
   const payloadNoRedundancy = header.concat(wmBits);
   const payload = repeatBits(payloadNoRedundancy, reps);
 
   const h = HL.length, w = HL[0]!.length;
-  const capacity = h * w;
+  const capHL = h * w;
+  const useBoth = bands === "HL+LH";
+  const capacity = useBoth ? capHL * 2 : capHL;
 
   if (payload.length > capacity) {
     throw new Error(
@@ -121,14 +127,30 @@ export async function addWatermark(
   // Consistent permutation between embed/extract
   const order = makePermutation(capacity, seed);
 
+  function locFromIdx(idx: number) {
+    if (!useBoth) {
+      const i = Math.floor(idx / w), j = idx % w;
+      return { band: "HL" as const, i, j };
+    } else {
+      if (idx < capHL) {
+        const i = Math.floor(idx / w), j = idx % w;
+        return { band: "HL" as const, i, j };
+      } else {
+        const k = idx - capHL;
+        const i = Math.floor(k / w), j = k % w;
+        return { band: "LH" as const, i, j };
+      }
+    }
+  }
+
   // QIM write
   for (let p = 0; p < payload.length; p++) {
     const idx = order[p]!;
-    const i = Math.floor(idx / w);
-    const j = idx % w;
-    const c = HL[i]![j]!;
+    const { band, i, j } = locFromIdx(idx);
+    const c = band === "HL" ? HL[i]![j]! : LH[i]![j]!;
     const bit = (payload[p]! as 0 | 1);
-    HL[i]![j] = qimEncode(c, q, bit);
+    const v = qimEncode(c, q, bit);
+    if (band === "HL") HL[i]![j] = v; else LH[i]![j] = v;
   }
 
   // IDWT
@@ -161,6 +183,7 @@ export async function extractWatermark(
   const q = options.q ?? 12;
   const seed = options.seed ?? 1234;
   const reps = (options as any).reps ?? 3;
+  const bands = (options as any).bands ?? "HL"; // "HL" | "HL+LH"
 
   const img = await readImageCompat(imageBuffer);
   const { width, height } = ensureEvenDimensions(img);
@@ -177,18 +200,36 @@ export async function extractWatermark(
   }
 
   // DWT → HL
-  const [, HL] = haarDWT(mat);
+  const [, HL, LH] = haarDWT(mat);
   const h = HL.length, w = HL[0]!.length;
-  const capacity = h * w;
+  const capHL = h * w;
+  const useBoth = bands === "HL+LH";
+  const capacity = useBoth ? capHL * 2 : capHL;
 
   const order = makePermutation(capacity, seed);
+
+  function locFromIdx(idx: number) {
+    if (!useBoth) {
+      const i = Math.floor(idx / w), j = idx % w;
+      return { band: "HL" as const, i, j };
+    } else {
+      if (idx < capHL) {
+        const i = Math.floor(idx / w), j = idx % w;
+        return { band: "HL" as const, i, j };
+      } else {
+        const k = idx - capHL;
+        const i = Math.floor(k / w), j = k % w;
+        return { band: "LH" as const, i, j };
+      }
+    }
+  }
 
   // 1) Read redundant header (32 * reps bit), then majority
   const headerRepBits: number[] = [];
   for (let p = 0; p < 32 * reps; p++) {
     const idx = order[p]!;
-    const i = Math.floor(idx / w), j = idx % w;
-    const c = HL[i]![j]!;
+    const { band, i, j } = locFromIdx(idx);
+    const c = band === "HL" ? HL[i]![j]! : LH[i]![j]!;
     headerRepBits.push(qimDecode(c, q));
   }
   const headerBits = decodeRepeatedBits(headerRepBits, reps);
@@ -198,16 +239,17 @@ export async function extractWatermark(
   const totalRepBits = (32 + byteLen * 8) * reps;
   if (byteLen === 0 || totalRepBits > capacity) {
     throw new Error(
-      `Lunghezza watermark non valida: ${byteLen} (capacità max ~ ${Math.floor((capacity / reps - 32) / 8)} byte con reps=${reps})`
+      `Lunghezza watermark non valida: ${byteLen} (capacità max ~ ${Math.floor((capacity / reps - 32) / 8)} byte con reps=${reps}): h,w: ${h},${w} capacity=${capacity}, totalRepBits: ${totalRepBits}, byteLen: ${byteLen}`
     );
   }
+  console.log(`Lunghezza watermark: ${byteLen} (capacità max ~ ${Math.floor((capacity / reps - 32) / 8)} byte con reps=${reps}): h,w: ${h},${w} capacity=${capacity}, totalRepBits: ${totalRepBits}, byteLen: ${byteLen}`);
 
   // 2) Read redundant payload
   const payloadRepBits: number[] = headerRepBits.slice();
   for (let p = 32 * reps; p < totalRepBits; p++) {
     const idx = order[p]!;
-    const i = Math.floor(idx / w), j = idx % w;
-    const c = HL[i]![j]!;
+    const { band, i, j } = locFromIdx(idx);
+    const c = band === "HL" ? HL[i]![j]! : LH[i]![j]!;
     payloadRepBits.push(qimDecode(c, q));
   }
 
