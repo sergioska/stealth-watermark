@@ -5,7 +5,15 @@
   "author": "Sergio Sicari",
   "main": "dist/index.js",
   "license": "MIT",
-  "keywords": ["watermark","blind-watermark","steganography","image"],
+  "keywords": [
+    "watermark",
+    "blind-watermark",
+    "steganography",
+    "image"
+  ],
+  "files": [
+    "dist/"
+  ],
   "scripts": {
     "build": "tsc",
     "test": "jest",

@@ -9,13 +9,13 @@ A robust library for digital image watermarking using **Discrete Wavelet Transfo
 
 ## ✨ Features
 
-- 🔐 **Robust Watermarking**: DWT + QIM algorithm for maximum resistance
-- 🎨 **Multi-Channel**: Support for individual RGB channels
-- ⚙️ **Configurable Parameters**: Adjustable quantization and redundancy
-- 🚀 **High Performance**: Optimized for large images
-- 📱 **Cross-Platform**: Works on Node.js, browser, and edge environments
-- 🔧 **TypeScript**: Complete type definitions included
-- ✅ **Test Coverage**: Comprehensive test suite for guaranteed quality
+- **Robust Watermarking**: DWT + QIM algorithm for maximum resistance
+- **Multi-Channel**: Support for individual RGB channels
+- **Configurable Parameters**: Adjustable quantization and redundancy
+- **High Performance**: Optimized for large images
+- **Cross-Platform**: Works on Node.js, browser, and edge environments
+- **TypeScript**: Complete type definitions included
+- **Test Coverage**: Comprehensive test suite for guaranteed quality
 
 ## 🚀 Installation
 
@@ -36,7 +36,7 @@ pnpm add stealth-watermark
 ### Adding Watermark
 
 ```typescript
-import { addWatermark, extractWatermark } from 'dwt-watermark';
+import { addWatermark, extractWatermark } from 'stealth-watermark';
 import { readFileSync, writeFileSync } from 'fs';
 
 // Read the original image
