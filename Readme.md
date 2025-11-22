@@ -7,7 +7,7 @@
 
 A robust library for digital image watermarking using **Discrete Wavelet Transform (DWT)** and **Quantization Index Modulation (QIM)**.
 
-## ✨ Features
+## Features
 
 - **Robust Watermarking**: DWT + QIM algorithm for maximum resistance
 - **Multi-Channel**: Support for individual RGB channels
@@ -17,18 +17,10 @@ A robust library for digital image watermarking using **Discrete Wavelet Transfo
 - **TypeScript**: Complete type definitions included
 - **Test Coverage**: Comprehensive test suite for guaranteed quality
 
-## 🚀 Installation
+## Installation
 
 ```bash
 npm install stealth-watermark
-```
-
-```bash
-yarn add stealth-watermark
-```
-
-```bash
-pnpm add stealth-watermark
 ```
 
 ## 📖 Quick Start
@@ -69,7 +61,7 @@ console.log('Extracted message:', extractedMessage);
 // Output: Secret message
 ```
 
-## 🔧 API Reference
+## API Reference
 
 ### `addWatermark(imageBuffer, watermarkText, options)`
 
@@ -110,7 +102,7 @@ Extracts a watermark from an image.
 Promise<string>  // Extracted text
 ```
 
-## 🎯 Advanced Examples
+## Advanced Examples
 
 ### Multi-Channel Watermarking
 
@@ -160,7 +152,7 @@ try {
 }
 ```
 
-## 🔬 How It Works
+## How It Works
 
 ### 1. **Discrete Wavelet Transform (DWT)**
 - Decomposes image into frequency bands
@@ -189,7 +181,7 @@ try {
 - **Robustness**: Resists JPEG compression (90% quality)
 - **Memory**: Optimized for large images
 
-## 🧪 Testing
+## Testing
 
 ```bash
 # Run all tests
@@ -238,21 +230,21 @@ Contributions are welcome! To contribute:
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-## 📝 License
+## License
 
 This project is released under the MIT license. See [LICENSE](LICENSE) for details.
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - **DWT Algorithm**: Based on Haar wavelet transform
 - **QIM Implementation**: Quantization Index Modulation for robustness
 - **Image Processing**: Uses Jimp and pngjs libraries
 
-## 📞 Support
+## Support
 
-- 🐛 **Issues**: [GitHub Issues](https://github.com/tuousername/dwt-watermark/issues)
-- 📚 **Documentation**: [Wiki](https://github.com/tuousername/dwt-watermark/wiki)
-- 💬 **Discussions**: [GitHub Discussions](https://github.com/tuousername/dwt-watermark/discussions)
+- **Issues**: [GitHub Issues](https://github.com/tuousername/dwt-watermark/issues)
+- **Documentation**: [Wiki](https://github.com/tuousername/dwt-watermark/wiki)
+- **Discussions**: [GitHub Discussions](https://github.com/tuousername/dwt-watermark/discussions)
 
 ---
 
